@@ -4,6 +4,7 @@ A simple cli tool to create "EXCEL" tables through a REPL
 
 ## Commands
 - `new <obj> <method>`: to create a new `obj` (with `method`) and select it
+- `show`: to print the selected table
 
 ### Objects
 - `table`
