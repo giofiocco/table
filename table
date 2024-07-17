@@ -25,13 +25,13 @@ function NewRange(obj, rstart, rend)
   elseif obj == "col" then
     TableResize(tables[current_table], rend-rstart+1, tables[current_table].size[1])
     local col = tables[current_table].ccol
-    for i=1,rend do
+    for i=1,rend-rstart+1 do
       tables[current_table].data[i][col] = rstart+i-1
     end
   elseif obj == "row" then
     TableResize(tables[current_table], tables[current_table].size[2], rend-rstart+1)
     local row = tables[current_table].crow
-    for i=1,rend do
+    for i=1,rend-rstart+1 do
       tables[current_table].data[row][i] = rstart+i-1
     end
   end

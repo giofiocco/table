@@ -2,6 +2,31 @@
 
 A simple cli tool to create "EXCEL" tables through a REPL
 
+## Example
+```shell
+$ ./table 
+> new table 
+> new col range 1 10 
+> new col
+> fill range 4 10 
+[ERROR] unknown obj
+> fill col range 4 10 
+> new col func return row*2 
+> show 
+table #1 (3x10)
+1 4 2 
+2 5 4 
+3 6 6 
+4 7 8 
+5 8 10 
+6 9 12 
+7 10 14 
+8 0 16 
+9 0 18 
+10 0 20 
+> 
+```
+
 ## Commands
 - `new <obj> <method>`: to create a new `obj` (with `method`) and select it
 - `select <obj> <int>`: to select an `obj` (starting from 1)
