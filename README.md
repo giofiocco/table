@@ -33,6 +33,10 @@ table #1 (3x10)
 - `fill <obj> <method>`: to fill the `obj` selected with `method`
 - `show`: to print the selected table
 
+### Cli commands
+- `q` or `quit` or `exit` to quit the REPL
+- `help` or `h` or `?` to get help
+
 ### Objects
 - `table`
 - `col`
