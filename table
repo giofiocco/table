@@ -145,8 +145,11 @@ function New(obj, ...)
 end
 
 ---@param obj Object
----@param num number
-function Select(obj, num)
+---@param _num string
+function Select(obj, _num)
+  local num = tonumber(_num)
+  if num == nil then print("[ERROR] unvalid num") return end
+
   if obj == "table" then
     if num >= #tables or num < 1 then print("[ERROR] unvalid num") return end
     current_table = num
@@ -193,11 +196,12 @@ while true do
       i = i + 1
     end
     func = func .. ")"
-    local f = load(func)
-    if f then
-      f()
-    else
+    local f,cerr = load(func)
+    if f == nil then print("[ERROR] cannot compile " .. func .. " because " .. cerr) break end
+    local ok,err = pcall(f)
+    if not ok then
       print("[ERROR] cannot run " .. func)
+      print(err)
     end
   end
 end
