@@ -14,8 +14,6 @@ local current_table = nil
 
 ---@alias Object string
 
--- TODO redo with tonumber() or ...
-
 ---@param obj Object
 ---@param rstart number
 ---@param rend number
@@ -107,13 +105,18 @@ function Fill(obj, ...)
       end
     end
     func = "return function(row, col, tab, tables, current_table) " .. func .. " end"
-    local _f,_ = load(func)
-    if _f then
-      local ok, f = pcall(_f)
-      if ok then
-        NewFunc(obj, f)
-      end
+    local _f,err = load(func)
+    if not _f then print("[ERROR] compiling function " .. func) print(err) return end
+    local ok, f = pcall(_f)
+    if ok then
+      NewFunc(obj, f)
+    else
+      print("[ERROR] running function" .. func)
+      print(f)
     end
+  elseif args[1] == "list" then
+    print(#args[1])
+
   else
     print("[ERROR] unknown method")
   end
@@ -175,29 +178,66 @@ q | quit | exit   quit
 h | help | ?      print help
 ]]
 
+---@param str string
+---@return string,string
+function Tokenize(str)
+  local c = str:sub(1, 1)
+  local i = 2
+  local len = str:len()
+  if c == ' ' then
+    return Tokenize(str:sub(2, -1))
+  elseif c == '"' then
+    while i <= len and str:sub(i, i) ~= '"' do
+      i = i + 1
+    end
+    return str:sub(1, i), str:sub(i+1, -1)
+  else
+    while i <= len and str:sub(i, i) ~= ' ' do
+      i = i + 1
+    end
+    return str:sub(1, i-1), str:sub(i, -1)
+  end
+end
+
 while true do
   io.write("> ")
   local input = io.read()
-  local func = ""
-  local i = 0
-  if input == "q" or input == "quit" or input == "exit" then
+
+  local tokens, token = {}, nil
+  token, input = Tokenize(input)
+  while input ~= "" do
+    table.insert(tokens, token)
+    token, input = Tokenize(input)
+  end
+  table.insert(tokens, token)
+
+  if tokens[1] == "q" or tokens[1] == "quit" or tokens[1] == "exit" then
     break
-  elseif input == "help" or input == "h" or input == "?" then
+  elseif tokens[1] == "help" or tokens[1] == "h" or tokens[1] == "?" then
     io.write(help)
-  elseif input ~= "" then
-    for w in input:gmatch("%S+") do
-      if i == 0 then
-        func = func .. w:gsub("^%l", string.upper) .. "("
-      elseif i == 1 then
-        func = func .. "\"" .. w .. "\""
+  elseif #tokens > 1 then
+    local func = ""
+    for i,w in ipairs(tokens) do
+      if i == 1 then
+        func = w:gsub("^%l", string.upper) .. "("
+      elseif i == 2 then
+        if w:sub(1,1) ~= '"' then
+          func = func .. "\"" .. w .. "\""
+        else
+          func = func .. w
+        end
       else
-        func = func .. ", \"" .. w .. "\""
+        if w:sub(1,1) ~= '"' then
+          func = func .. ", \"" .. w .. "\""
+        else
+          func = func .. ", " .. w
+        end
       end
-      i = i + 1
     end
     func = func .. ")"
+    print(func)
     local f,cerr = load(func)
-    if f == nil then print("[ERROR] cannot compile " .. func .. " because " .. cerr) break end
+    if f == nil then print("[ERROR] cannot compile " .. func) print(cerr) break end
     local ok,err = pcall(f)
     if not ok then
       print("[ERROR] cannot run " .. func)
@@ -205,4 +245,3 @@ while true do
     end
   end
 end
-
