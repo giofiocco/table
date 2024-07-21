@@ -53,6 +53,26 @@ function NewFunc(obj, f)
   end
 end
 
+---@param obj Object
+---@param args number[]
+function NewList(obj, args)
+ if obj == "table" then
+    assert("TODO")
+  elseif obj == "col" then
+    TableResize(tables[current_table], #args, tables[current_table].size[1])
+    local col = tables[current_table].ccol
+    for i=1,#args do
+      tables[current_table].data[i][col] = args[i]
+    end
+  elseif obj == "row" then
+    TableResize(tables[current_table], tables[current_table].size[2], #args)
+    local row = tables[current_table].crow
+    for i=1,#args do
+      tables[current_table].data[row][i] = args[i]
+    end
+  end
+end
+
 ---@param t Table
 function TablePrint(t)
   io.write(string.format("table #%d (%dx%d)\n", current_table, t.size[1], t.size[2]))
@@ -115,8 +135,16 @@ function Fill(obj, ...)
       print(f)
     end
   elseif args[1] == "list" then
-    print(#args[1])
+   local _args = {}
+    for i,e in ipairs(args) do
+      if i >= 2 then
+        local _e = tonumber(e)
+        if not _e then print("[ERROR] expected number in list") return end
+        table.insert(_args, _e)
+      end
+    end
 
+    NewList(obj, _args)
   else
     print("[ERROR] unknown method")
   end
@@ -176,6 +204,7 @@ local help = [[
 Comands:
 q | quit | exit   quit
 h | help | ?      print help
+d | debug         toggle debug info
 ]]
 
 ---@param str string
@@ -199,6 +228,9 @@ function Tokenize(str)
   end
 end
 
+---@type boolean
+local debug_enable = false
+
 while true do
   io.write("> ")
   local input = io.read()
@@ -209,13 +241,21 @@ while true do
     table.insert(tokens, token)
     token, input = Tokenize(input)
   end
-  table.insert(tokens, token)
+  if token ~= "" then
+    table.insert(tokens, token)
+  end
 
   if tokens[1] == "q" or tokens[1] == "quit" or tokens[1] == "exit" then
     break
   elseif tokens[1] == "help" or tokens[1] == "h" or tokens[1] == "?" then
     io.write(help)
-  elseif #tokens > 1 then
+  elseif tokens[1] == "debug" or tokens[1] == "d" then
+    if debug_enable then
+      debug_enable = false
+    else
+      debug_enable = true
+    end
+  elseif #tokens > 0 then
     local func = ""
     for i,w in ipairs(tokens) do
       if i == 1 then
@@ -235,7 +275,7 @@ while true do
       end
     end
     func = func .. ")"
-    print(func)
+    if debug_enable then print("[INFO] running " .. func) end
     local f,cerr = load(func)
     if f == nil then print("[ERROR] cannot compile " .. func) print(cerr) break end
     local ok,err = pcall(f)

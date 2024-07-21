@@ -11,7 +11,7 @@ $ ./table
 > fill range 4 10 
 [ERROR] unknown obj
 > fill col range 4 10 
-> new col func return row*2 
+> new col func return row*2
 > show 
 table #1 (3x10)
 1 4 2 
@@ -26,6 +26,19 @@ table #1 (3x10)
 10 0 20 
 > 
 ```
+
+```shell 
+$ ./table
+> new table
+> new col list 1 3 2
+> show
+table #1 (1x3)
+1
+3
+2
+>
+```
+
 
 ## Commands
 - `new <obj> <method>`: to create a new `obj` (with `method`) and select it
@@ -43,11 +56,12 @@ table #1 (3x10)
 - `row` 
 
 ### Method
-- `range <int> <int>`: range from start to end (if col/row too large the rest il filled with 0s)
+- `range <number> <number>`: range from start to end (if col/row too large the rest il filled with 0s)
 - `func <func-body>`: generate values using the function `function(row, col, tab, tables, current_table) <func-body> end` in [LUA](https://www.lua.org/)
     `row` and `col` are the coordinates of the cell
     `tab` is the current table with fields `size`, `ccol`, `crow` (the selected col and row), and `data` (the actual 2D array)
     `tables` and `current_table` are the array of all the tables and the index of the current one
+- `list <number> <number> ...`: list of numbers
 
 ## TODOs
 - [ ] fill table
